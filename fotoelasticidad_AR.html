@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>Fotoelasticidad — AR (simulado)</title>
+<style>
+  html,body{height:100%;margin:0;background:#ffffff;color:#111;}
+  #app{position:relative;width:100%;height:100vh;overflow:hidden;background:#fff;}
+  video#cam{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);z-index:0;}
+  #ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;}
+  #marker-box{margin-top:6vh; width:60vw; max-width:420px; border:4px dashed rgba(0,0,0,0.15); background:#fff; padding:10px; box-shadow:0 8px 20px rgba(0,0,0,0.08);}
+  #marker-image{width:100%; height:auto; display:block;}
+  video#overlay{position:fixed; z-index:2; left:50%; top:50%; transform:translate(-50%,-60%); width:70vw; max-width:900px; height:auto; pointer-events:auto; border-radius:8px; box-shadow:0 18px 40px rgba(0,0,0,0.35);}
+  #controls{position:fixed;left:12px;bottom:12px;z-index:4;background:rgba(255,255,255,0.9);padding:8px;border-radius:8px;}
+  button{font-size:16px;padding:8px 12px;}
+  #note{margin:10px;font-size:14px;color:#333;}
+</style>
+</head>
+<body>
+<div id="app">
+  <video id="cam" autoplay playsinline muted></video>
+  <div id="ui">
+    <div id="marker-box">
+      <img id="marker-image" src="marcador_fotoelasticidad.jpg" alt="Marcador Fotoelasticidad" />
+    </div>
+  </div>
+
+  <!-- overlay video (autoplay muted horizontal) -->
+  <video id="overlay" playsinline autoplay muted loop preload="auto" webkit-playsinline>
+    <source src="https://drive.google.com/uc?export=download&amp;id=15ywq3olTkSnqUKHys5TRQ1CTsXqZD3a-" type="video/mp4">
+    Tu navegador no soporta la reproducción de video.
+  </video>
+
+  <div id="controls">
+    <button id="btnCam">Activar cámara</button>
+    <span id="note">Alinea la cámara con el marcador impreso para ver el video "flotando" 10 cm sobre él.</span>
+  </div>
+</div>
+
+<script>
+async function startCamera(){
+  const cam = document.getElementById('cam');
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
+    cam.srcObject = stream;
+    await cam.play();
+    document.getElementById('btnCam').innerText = 'Cámara activa';
+  }catch(e){ alert('No se pudo acceder a la cámara: '+e.message); }
+}
+
+document.getElementById('btnCam').addEventListener('click', startCamera);
+
+// Resize overlay based on viewport to simulate 10 cm float (approximation)
+// We set the overlay slightly above center to simulate hovering
+function adjustOverlay(){}
+window.addEventListener('resize', adjustOverlay);
+adjustOverlay();
+
+// Autoplay policies: video is muted so autoplay should work on most browsers.
+// Provide user control to unmute if they want to hear sound.
+const overlay = document.getElementById('overlay');
+overlay.addEventListener('click', ()=>{
+  if(overlay.muted){ overlay.muted = false; alert('Sonido activado.'); } else { overlay.muted = true; alert('Sonido silenciado.'); }
+});
+</script>
+</body>
+</html>
